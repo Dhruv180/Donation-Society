@@ -1,3 +1,4 @@
+import 'package:donation/components/common/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../reusable_card.dart';
@@ -7,6 +8,7 @@ import './food.dart';
 import './clothes.dart';
 import 'Article_payment.dart';
 import 'Seniorpage_Payment.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatefulWidget {
   static const String id = 'home_page';
@@ -21,6 +23,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.secondary,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).colorScheme.primary,
         elevation: 0,
         centerTitle: true,
@@ -40,6 +43,12 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: _showLogoutDialog,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: SafeArea(
@@ -77,12 +86,11 @@ class _HomePageState extends State<HomePage> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: <Widget>[
-                      ReusableCard(
+                    ReusableCard(
                       time: 4,
                       image: 'images/edu.jpg',
                       nextChild: Education(),
                     ),
-                  
                     ReusableCard(
                       time: 5,
                       image: 'images/wash.jpg',
@@ -101,5 +109,41 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirm Logout"),
+          content: Text("Are you sure you want to logout?"),
+          actions: [
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              child: Text("Yes"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _logout(); // Call logout method
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _logout() async {
+    try {
+      await FirebaseAuth.instance.signOut(); // Sign out from Firebase
+      Navigator.pushReplacementNamed(context, OnboardingScreen.id); // Navigate to onboarding screen
+    } catch (e) {
+      print("Logout error: $e"); // Handle any errors if necessary
+    }
   }
 }
